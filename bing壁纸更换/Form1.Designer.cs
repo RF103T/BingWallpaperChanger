@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.backgroundOriginChoose = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -36,6 +38,12 @@
             this.startWithSystem = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
             this.state = new System.Windows.Forms.Label();
+            this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.exit = new System.Windows.Forms.ToolStripMenuItem();
+            this.show = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateNow = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // backgroundOriginChoose
@@ -75,13 +83,13 @@
             this.changeTimeChoose.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.changeTimeChoose.FormattingEnabled = true;
             this.changeTimeChoose.Items.AddRange(new object[] {
-            "5分钟",
             "10分钟",
             "20分钟",
             "30分钟",
             "1小时",
             "2小时",
-            "3小时"});
+            "3小时",
+            "4小时"});
             this.changeTimeChoose.Location = new System.Drawing.Point(74, 59);
             this.changeTimeChoose.Name = "changeTimeChoose";
             this.changeTimeChoose.Size = new System.Drawing.Size(245, 25);
@@ -101,6 +109,7 @@
             // startWithSystem
             // 
             this.startWithSystem.AutoSize = true;
+            this.startWithSystem.Enabled = false;
             this.startWithSystem.Location = new System.Drawing.Point(12, 90);
             this.startWithSystem.Name = "startWithSystem";
             this.startWithSystem.Size = new System.Drawing.Size(75, 21);
@@ -111,11 +120,11 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(174, 88);
+            this.label3.Location = new System.Drawing.Point(195, 91);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(152, 68);
+            this.label3.Size = new System.Drawing.Size(124, 68);
             this.label3.TabIndex = 7;
-            this.label3.Text = "bing壁纸更换V0.1\r\nby RF103T\r\n感谢 https://bing.ioliu.cn/\r\n提供的随机壁纸API";
+            this.label3.Text = "bing壁纸更换V0.1\r\nby RF103T\r\n随机壁纸API：\r\nhttps://bing.ioliu.cn/";
             // 
             // state
             // 
@@ -124,6 +133,45 @@
             this.state.Name = "state";
             this.state.Size = new System.Drawing.Size(0, 17);
             this.state.TabIndex = 8;
+            // 
+            // notifyIcon
+            // 
+            this.notifyIcon.ContextMenuStrip = this.contextMenuStrip;
+            this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
+            this.notifyIcon.Text = "bing壁纸更换";
+            this.notifyIcon.Visible = true;
+            this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseDoubleClick);
+            // 
+            // contextMenuStrip
+            // 
+            this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.show,
+            this.updateNow,
+            this.exit});
+            this.contextMenuStrip.Name = "contextMenuStrip";
+            this.contextMenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            this.contextMenuStrip.Size = new System.Drawing.Size(149, 70);
+            // 
+            // exit
+            // 
+            this.exit.Name = "exit";
+            this.exit.Size = new System.Drawing.Size(180, 22);
+            this.exit.Text = "退出";
+            this.exit.Click += new System.EventHandler(this.exit_Click);
+            // 
+            // show
+            // 
+            this.show.Name = "show";
+            this.show.Size = new System.Drawing.Size(180, 22);
+            this.show.Text = "显示";
+            this.show.Click += new System.EventHandler(this.show_Click);
+            // 
+            // updateNow
+            // 
+            this.updateNow.Name = "updateNow";
+            this.updateNow.Size = new System.Drawing.Size(180, 22);
+            this.updateNow.Text = "立刻更新壁纸";
+            this.updateNow.Click += new System.EventHandler(this.updateNow_Click);
             // 
             // Form1
             // 
@@ -139,12 +187,17 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.backgroundOriginChoose);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.Name = "Form1";
+            this.ShowInTaskbar = false;
             this.Text = "bing壁纸更换";
+            this.Activated += new System.EventHandler(this.Form1_Activated);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Resize += new System.EventHandler(this.Form1_Resize);
+            this.contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -160,6 +213,11 @@
         private System.Windows.Forms.CheckBox startWithSystem;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label state;
+        private System.Windows.Forms.NotifyIcon notifyIcon;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem exit;
+        private System.Windows.Forms.ToolStripMenuItem updateNow;
+        private System.Windows.Forms.ToolStripMenuItem show;
     }
 }
 
