@@ -4,6 +4,8 @@
 
 现在版本号是 `V0.2` ，以后会根据需要添加更多的功能。
 
+下载地址：https://github.com/RF103T/BingWallpaperChanger/raw/master/bing%E5%A3%81%E7%BA%B8%E6%9B%B4%E6%8D%A2V0.2.exe
+
 ### 更新日志
 
 #### V0.2：
