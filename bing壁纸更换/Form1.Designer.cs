@@ -40,9 +40,12 @@
             this.state = new System.Windows.Forms.Label();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.exit = new System.Windows.Forms.ToolStripMenuItem();
             this.show = new System.Windows.Forms.ToolStripMenuItem();
             this.updateNow = new System.Windows.Forms.ToolStripMenuItem();
+            this.exit = new System.Windows.Forms.ToolStripMenuItem();
+            this.savePicButton = new System.Windows.Forms.Button();
+            this.savePicItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -72,7 +75,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 62);
+            this.label2.Location = new System.Drawing.Point(12, 58);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(56, 17);
             this.label2.TabIndex = 2;
@@ -90,7 +93,7 @@
             "2小时",
             "3小时",
             "4小时"});
-            this.changeTimeChoose.Location = new System.Drawing.Point(74, 59);
+            this.changeTimeChoose.Location = new System.Drawing.Point(74, 55);
             this.changeTimeChoose.Name = "changeTimeChoose";
             this.changeTimeChoose.Size = new System.Drawing.Size(245, 25);
             this.changeTimeChoose.TabIndex = 3;
@@ -98,7 +101,7 @@
             // 
             // changeNow
             // 
-            this.changeNow.Location = new System.Drawing.Point(12, 133);
+            this.changeNow.Location = new System.Drawing.Point(12, 149);
             this.changeNow.Name = "changeNow";
             this.changeNow.Size = new System.Drawing.Size(156, 23);
             this.changeNow.TabIndex = 4;
@@ -109,27 +112,27 @@
             // startWithSystem
             // 
             this.startWithSystem.AutoSize = true;
-            this.startWithSystem.Enabled = false;
-            this.startWithSystem.Location = new System.Drawing.Point(12, 90);
+            this.startWithSystem.Location = new System.Drawing.Point(12, 91);
             this.startWithSystem.Name = "startWithSystem";
             this.startWithSystem.Size = new System.Drawing.Size(75, 21);
             this.startWithSystem.TabIndex = 6;
             this.startWithSystem.Text = "开机启动";
             this.startWithSystem.UseVisualStyleBackColor = true;
+            this.startWithSystem.CheckedChanged += new System.EventHandler(this.startWithSystem_CheckedChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(195, 91);
+            this.label3.Location = new System.Drawing.Point(195, 107);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(124, 68);
             this.label3.TabIndex = 7;
-            this.label3.Text = "bing壁纸更换V0.1\r\nby RF103T\r\n随机壁纸API：\r\nhttps://bing.ioliu.cn/";
+            this.label3.Text = "bing壁纸更换V0.2\r\nby RF103T\r\n随机壁纸API：\r\nhttps://bing.ioliu.cn/";
             // 
             // state
             // 
             this.state.AutoSize = true;
-            this.state.Location = new System.Drawing.Point(12, 113);
+            this.state.Location = new System.Drawing.Point(96, 92);
             this.state.Name = "state";
             this.state.Size = new System.Drawing.Size(0, 17);
             this.state.TabIndex = 8;
@@ -145,25 +148,20 @@
             // contextMenuStrip
             // 
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.show,
             this.updateNow,
+            this.savePicItem,
+            this.toolStripSeparator1,
+            this.show,
             this.exit});
             this.contextMenuStrip.Name = "contextMenuStrip";
             this.contextMenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.contextMenuStrip.Size = new System.Drawing.Size(149, 70);
-            // 
-            // exit
-            // 
-            this.exit.Name = "exit";
-            this.exit.Size = new System.Drawing.Size(180, 22);
-            this.exit.Text = "退出";
-            this.exit.Click += new System.EventHandler(this.exit_Click);
+            this.contextMenuStrip.Size = new System.Drawing.Size(149, 98);
             // 
             // show
             // 
             this.show.Name = "show";
             this.show.Size = new System.Drawing.Size(180, 22);
-            this.show.Text = "显示";
+            this.show.Text = "显示窗口";
             this.show.Click += new System.EventHandler(this.show_Click);
             // 
             // updateNow
@@ -173,11 +171,41 @@
             this.updateNow.Text = "立刻更新壁纸";
             this.updateNow.Click += new System.EventHandler(this.updateNow_Click);
             // 
+            // exit
+            // 
+            this.exit.Name = "exit";
+            this.exit.Size = new System.Drawing.Size(180, 22);
+            this.exit.Text = "退出";
+            this.exit.Click += new System.EventHandler(this.exit_Click);
+            // 
+            // savePicButton
+            // 
+            this.savePicButton.Location = new System.Drawing.Point(12, 120);
+            this.savePicButton.Name = "savePicButton";
+            this.savePicButton.Size = new System.Drawing.Size(156, 23);
+            this.savePicButton.TabIndex = 9;
+            this.savePicButton.Text = "保存这张壁纸";
+            this.savePicButton.UseVisualStyleBackColor = true;
+            this.savePicButton.Click += new System.EventHandler(this.savePicButton_Click);
+            // 
+            // savePicItem
+            // 
+            this.savePicItem.Name = "savePicItem";
+            this.savePicItem.Size = new System.Drawing.Size(180, 22);
+            this.savePicItem.Text = "保存这张图片";
+            this.savePicItem.Click += new System.EventHandler(this.savePicItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(331, 165);
+            this.ClientSize = new System.Drawing.Size(331, 184);
+            this.Controls.Add(this.savePicButton);
             this.Controls.Add(this.state);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.startWithSystem);
@@ -218,6 +246,9 @@
         private System.Windows.Forms.ToolStripMenuItem exit;
         private System.Windows.Forms.ToolStripMenuItem updateNow;
         private System.Windows.Forms.ToolStripMenuItem show;
+        private System.Windows.Forms.Button savePicButton;
+        private System.Windows.Forms.ToolStripMenuItem savePicItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
 
