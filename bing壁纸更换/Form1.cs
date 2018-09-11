@@ -108,8 +108,7 @@ namespace bing壁纸更换
             {
                 case 0:
                     {
-                        time = 3 * 60 * 1000;
-                        //time = 10 * 60 * 1000;
+                        time = 10 * 60 * 1000;
                         break;
                     }
                 case 1:
