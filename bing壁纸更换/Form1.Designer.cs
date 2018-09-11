@@ -40,12 +40,12 @@
             this.state = new System.Windows.Forms.Label();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.show = new System.Windows.Forms.ToolStripMenuItem();
             this.updateNow = new System.Windows.Forms.ToolStripMenuItem();
-            this.exit = new System.Windows.Forms.ToolStripMenuItem();
-            this.savePicButton = new System.Windows.Forms.Button();
             this.savePicItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.show = new System.Windows.Forms.ToolStripMenuItem();
+            this.exit = new System.Windows.Forms.ToolStripMenuItem();
+            this.savePicButton = new System.Windows.Forms.Button();
             this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -127,7 +127,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(124, 68);
             this.label3.TabIndex = 7;
-            this.label3.Text = "bing壁纸更换V0.2\r\nby RF103T\r\n随机壁纸API：\r\nhttps://bing.ioliu.cn/";
+            this.label3.Text = "bing壁纸更换V0.2\r\nby RF103T\r\n随机壁纸接口：\r\nhttps://bing.ioliu.cn/";
             // 
             // state
             // 
@@ -157,24 +157,36 @@
             this.contextMenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.contextMenuStrip.Size = new System.Drawing.Size(149, 98);
             // 
-            // show
-            // 
-            this.show.Name = "show";
-            this.show.Size = new System.Drawing.Size(180, 22);
-            this.show.Text = "显示窗口";
-            this.show.Click += new System.EventHandler(this.show_Click);
-            // 
             // updateNow
             // 
             this.updateNow.Name = "updateNow";
-            this.updateNow.Size = new System.Drawing.Size(180, 22);
+            this.updateNow.Size = new System.Drawing.Size(148, 22);
             this.updateNow.Text = "立刻更新壁纸";
             this.updateNow.Click += new System.EventHandler(this.updateNow_Click);
+            // 
+            // savePicItem
+            // 
+            this.savePicItem.Name = "savePicItem";
+            this.savePicItem.Size = new System.Drawing.Size(148, 22);
+            this.savePicItem.Text = "保存这张图片";
+            this.savePicItem.Click += new System.EventHandler(this.savePicItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(145, 6);
+            // 
+            // show
+            // 
+            this.show.Name = "show";
+            this.show.Size = new System.Drawing.Size(148, 22);
+            this.show.Text = "显示窗口";
+            this.show.Click += new System.EventHandler(this.show_Click);
             // 
             // exit
             // 
             this.exit.Name = "exit";
-            this.exit.Size = new System.Drawing.Size(180, 22);
+            this.exit.Size = new System.Drawing.Size(148, 22);
             this.exit.Text = "退出";
             this.exit.Click += new System.EventHandler(this.exit_Click);
             // 
@@ -187,18 +199,6 @@
             this.savePicButton.Text = "保存这张壁纸";
             this.savePicButton.UseVisualStyleBackColor = true;
             this.savePicButton.Click += new System.EventHandler(this.savePicButton_Click);
-            // 
-            // savePicItem
-            // 
-            this.savePicItem.Name = "savePicItem";
-            this.savePicItem.Size = new System.Drawing.Size(180, 22);
-            this.savePicItem.Text = "保存这张图片";
-            this.savePicItem.Click += new System.EventHandler(this.savePicItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // Form1
             // 

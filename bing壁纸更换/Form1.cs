@@ -85,10 +85,7 @@ namespace bing壁纸更换
                 changeTimeChoose.Enabled = false;
                 changeNow.Enabled = false;
                 (contextMenuStrip.Items.Find("updateNow", true))[0].Enabled = false;
-                if (!startFlag)
-                {
-                    downloadBingDaily("temp\\dailyPic.bmp");
-                }
+                downloadBingDaily("temp\\dailyPic.bmp");
             }
             else
             {
@@ -233,9 +230,16 @@ namespace bing壁纸更换
         //鼠标双击通知栏图标事件
         private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            Visible = true;
-            WindowState = FormWindowState.Normal;
-            Show();
+            if(WindowState == FormWindowState.Minimized)
+            {
+                Visible = true;
+                WindowState = FormWindowState.Normal;
+                Show();
+            }
+            else
+            {
+                Activate();
+            }
         }
 
         //日图检测计时器
