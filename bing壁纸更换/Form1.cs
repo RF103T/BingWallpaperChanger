@@ -17,9 +17,10 @@ namespace bing壁纸更换
         public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
         string bingDailyPicApi = "https://cn.bing.com/HPImageArchive.aspx?idx=0&n=1";
-        string bingRandPicApi = "https://bing.ioliu.cn/v1/rand?w=1920&h=1080";
+        string bingRandPicApi;
         bool startFlag = true;
         int time = 0;//设定的延迟时间
+        int screenHeight, screenWidth, screenNum;//屏幕的参数
 
         //全局计时器
         System.Timers.Timer dailyTimer = new System.Timers.Timer(3600000);
@@ -27,10 +28,25 @@ namespace bing壁纸更换
 
         //跨线程委托
         delegate void setText();
+        delegate void setEnabled();
+
+        //主线程ID
+        static int mainThreadID;
 
         //加载前的准备工作
         public Form1()
         {
+            //检测屏幕个数和屏幕分辨率
+            screenHeight = Screen.PrimaryScreen.Bounds.Height;
+            screenWidth = Screen.PrimaryScreen.Bounds.Width;
+            screenNum = Screen.AllScreens.Length;
+            //暂不支持多屏幕
+            //屏幕分辨率只有当壁纸源提供更高分辨率的壁纸时才会往上支持
+            if (screenNum > 1 || (screenHeight > 1080 && screenWidth > 1920))
+            {
+                MessageBox.Show("此软件暂不支持多屏幕配置，而且不支持1080p以上分辨率的屏幕");
+                Environment.Exit(0);
+            }
             if (!System.IO.File.Exists("Settings.set"))
             {
                 XmlDocument settings = new XmlDocument();
@@ -50,6 +66,9 @@ namespace bing壁纸更换
                 node.AppendChild(s3);
                 settings.Save("Settings.set");
             }
+            //获取主线程ID
+            mainThreadID = Thread.CurrentThread.ManagedThreadId;
+            bingRandPicApi = "https://bing.ioliu.cn/v1/rand?w=" + screenWidth.ToString() + "&h=" + screenHeight.ToString();
             InitializeComponent();
         }
 
@@ -177,7 +196,7 @@ namespace bing壁纸更换
                 }
             }
         }
-    
+
         //通知栏菜单退出按钮事件
         private void exit_Click(object sender, EventArgs e)
         {
@@ -229,7 +248,7 @@ namespace bing壁纸更换
         //鼠标双击通知栏图标事件
         private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if(WindowState == FormWindowState.Minimized)
+            if (WindowState == FormWindowState.Minimized)
             {
                 Visible = true;
                 WindowState = FormWindowState.Normal;
@@ -328,6 +347,7 @@ namespace bing壁纸更换
         //方便进行多线程调用
         private void downloadBingDaily(string path)
         {
+            changeEnabled(false);
             //用Lambda表达式传值，实际上是编译器帮助生成了一个新类，所以不用从object转换了
             Thread downloader = new Thread(() => _downloadBingDaily(path));
             downloader.Start();
@@ -336,6 +356,7 @@ namespace bing壁纸更换
         //方便进行多线程调用
         private void downloadBingRand(string path)
         {
+            changeEnabled(false);
             //用Lambda表达式传值，实际上是编译器帮助生成了一个新类，所以不用从object转换了
             Thread downloader = new Thread(() => _downloadBingRand(path));
             downloader.Start();
@@ -345,8 +366,8 @@ namespace bing壁纸更换
         private void _downloadBingDaily(string path)
         {
             string imageUrl = "";
-            setText setText_1 = () => { state.Text = "正在查询更新..."; };
-            state.Invoke(setText_1);
+            setText setText = () => { state.Text = "正在查询更新..."; };
+            state.Invoke(setText);
             try
             {
                 //准备临时Xml文件
@@ -376,7 +397,8 @@ namespace bing壁纸更换
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("检查壁纸更新时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errorTimer();
             }
             //判断是不是最新的每日壁纸
             XmlDocument urlXml = new XmlDocument();
@@ -390,15 +412,15 @@ namespace bing壁纸更换
                 //解析Xml获得每日壁纸地址
                 node = urlXml.SelectSingleNode("//image");
                 if (node != null)
-                    imageUrl = "http://www.bing.com" + (node.SelectSingleNode("urlBase")).InnerText + "_1920x1080.jpg";
+                    imageUrl = "http://www.bing.com" + (node.SelectSingleNode("urlBase")).InnerText + "_" + screenWidth.ToString() + "x" + screenHeight.ToString() + ".jpg";
                 //下载图片
                 downloadPic(imageUrl, path);
                 (saveTime.SelectSingleNode("每日壁纸日期")).InnerText = (node.SelectSingleNode("startdate")).InnerText;
             }
             else
             {
-                setText setText_2 = () => { state.Text = ""; };
-                state.Invoke(setText_2);
+                setText = () => { state.Text = ""; };
+                state.Invoke(setText);
             }
             urlXml.Save(@"temp/temp.xml");
             settings.Save("Settings.set");
@@ -416,8 +438,8 @@ namespace bing壁纸更换
         //下载和保存壁纸
         private void downloadPic(string url, string path)
         {
-            setText setText_1 = () => { state.Text = "正在下载壁纸..."; };
-            state.Invoke(setText_1);
+            setText setText = () => { state.Text = "正在下载壁纸..."; };
+            state.Invoke(setText);
             try
             {
                 HttpWebRequest getImage = (HttpWebRequest)WebRequest.Create(url);
@@ -432,32 +454,104 @@ namespace bing壁纸更换
                 HttpWebResponse image = (HttpWebResponse)getImage.GetResponse();
                 Stream stream = null;
                 stream = image.GetResponseStream();
-                Image.FromStream(stream).Save(@"temp/temp.jpg");
-                JPGtoBMP(@"temp/temp.jpg", path);
-                stream.Dispose();
-                stream.Close();
-                image.Close();
-                System.IO.File.Delete(@"temp/temp.jpg");
-                setText setText_2 = () => { state.Text = ""; };
-                state.Invoke(setText_2);
+                if (stream != null)
+                {
+                    Image.FromStream(stream).Save(@"temp/temp.jpg");
+                    JPGtoBMP(@"temp/temp.jpg", path);
+                    stream.Dispose();
+                    stream.Close();
+                    image.Close();
+                    System.IO.File.Delete(@"temp/temp.jpg");
+                }
+                else
+                {
+                    stream.Dispose();
+                    stream.Close();
+                    image.Close();
+                    errorTimer();
+                }
+                setText = () => { state.Text = ""; };
+                state.Invoke(setText);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("下载壁纸时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errorTimer();
+            }
+        }
+
+        //遇到错误重新执行的倒计时（只允许在非主线程上运行）
+        private void errorTimer()
+        {
+            if (mainThreadID != Thread.CurrentThread.ManagedThreadId)
+            {
+                for(int i = 3;i > 0;i--)
+                {
+                    setText setText = () =>
+                    {
+                        state.Text = "遇到错误，将在" + i.ToString() + "秒后重试...";
+                    };
+                    state.Invoke(setText);
+                    Thread.Sleep(1000);
+                }
+                if(backgroundOriginChoose.SelectedIndex == 0)
+                    _downloadBingDaily("temp\\Pic.bmp");
+                else
+                    _downloadBingRand("temp\\randPic.bmp");
+            }
+        }
+
+        //修改影响下载的相关控件的可用状态
+        private void changeEnabled(bool enabledState)
+        {
+            if (mainThreadID != Thread.CurrentThread.ManagedThreadId)
+            {
+                setEnabled setEnabled = () =>
+                {
+                    if(backgroundOriginChoose.SelectedIndex != 0)
+                    {
+                        changeNow.Enabled = enabledState;
+                        changeTimeChoose.Enabled = enabledState;
+                        (contextMenuStrip.Items.Find("updateNow", true))[0].Enabled = enabledState;
+                    }
+                    backgroundOriginChoose.Enabled = enabledState;
+                    savePicButton.Enabled = enabledState;
+                    (contextMenuStrip.Items.Find("savePicItem", true))[0].Enabled = enabledState;
+                };
+                state.Invoke(setEnabled);
+            }
+            else
+            {
+                if (backgroundOriginChoose.SelectedIndex != 0)
+                {
+                    changeNow.Enabled = enabledState;
+                    changeTimeChoose.Enabled = enabledState;
+                    (contextMenuStrip.Items.Find("updateNow", true))[0].Enabled = enabledState;
+                }
+                backgroundOriginChoose.Enabled = enabledState;
+                savePicButton.Enabled = enabledState;
+                (contextMenuStrip.Items.Find("savePicItem", true))[0].Enabled = enabledState;
             }
         }
 
         //.jpg转.bmp
         private void JPGtoBMP(string jpgFile, string bmpFile)
         {
-            //转换jpg到bmp
-            using (Bitmap source = new Bitmap(jpgFile))
+            try
             {
-                using (Bitmap bmp = new Bitmap(source.Width, source.Height, PixelFormat.Format16bppRgb565))
+                //转换jpg到bmp
+                using (Bitmap source = new Bitmap(jpgFile))
                 {
-                    Graphics.FromImage(bmp).DrawImage(source, new Rectangle(0, 0, bmp.Width, bmp.Height));
-                    bmp.Save(bmpFile, ImageFormat.Bmp);
+                    using (Bitmap bmp = new Bitmap(source.Width, source.Height, PixelFormat.Format16bppRgb565))
+                    {
+                        Graphics.FromImage(bmp).DrawImage(source, new Rectangle(0, 0, bmp.Width, bmp.Height));
+                        bmp.Save(bmpFile, ImageFormat.Bmp);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("转换壁纸时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -465,6 +559,7 @@ namespace bing壁纸更换
         private void changeBackground(string bmpFile)
         {
             SystemParametersInfo(20, 0, bmpFile, 0x2);
+            changeEnabled(true);
         }
 
         //创建快捷方式

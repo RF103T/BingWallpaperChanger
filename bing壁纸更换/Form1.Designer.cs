@@ -56,10 +56,10 @@
             this.backgroundOriginChoose.Items.AddRange(new object[] {
             "bing每日高清壁纸（仅限一天一换）",
             "bing随机高清壁纸（https://bing.ioliu.cn/）"});
-            this.backgroundOriginChoose.Location = new System.Drawing.Point(61, 17);
+            this.backgroundOriginChoose.Location = new System.Drawing.Point(73, 17);
             this.backgroundOriginChoose.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.backgroundOriginChoose.Name = "backgroundOriginChoose";
-            this.backgroundOriginChoose.Size = new System.Drawing.Size(258, 25);
+            this.backgroundOriginChoose.Size = new System.Drawing.Size(247, 25);
             this.backgroundOriginChoose.TabIndex = 0;
             this.backgroundOriginChoose.SelectedIndexChanged += new System.EventHandler(this.backgroundOriginChoose_SelectedIndexChanged);
             // 
@@ -93,17 +93,17 @@
             "2小时",
             "3小时",
             "4小时"});
-            this.changeTimeChoose.Location = new System.Drawing.Point(74, 55);
+            this.changeTimeChoose.Location = new System.Drawing.Point(84, 55);
             this.changeTimeChoose.Name = "changeTimeChoose";
-            this.changeTimeChoose.Size = new System.Drawing.Size(245, 25);
+            this.changeTimeChoose.Size = new System.Drawing.Size(236, 25);
             this.changeTimeChoose.TabIndex = 3;
             this.changeTimeChoose.SelectedIndexChanged += new System.EventHandler(this.changeTimeChoose_SelectedIndexChanged);
             // 
             // changeNow
             // 
-            this.changeNow.Location = new System.Drawing.Point(12, 149);
+            this.changeNow.Location = new System.Drawing.Point(12, 153);
             this.changeNow.Name = "changeNow";
-            this.changeNow.Size = new System.Drawing.Size(156, 23);
+            this.changeNow.Size = new System.Drawing.Size(156, 31);
             this.changeNow.TabIndex = 4;
             this.changeNow.Text = "立刻更换";
             this.changeNow.UseVisualStyleBackColor = true;
@@ -112,7 +112,7 @@
             // startWithSystem
             // 
             this.startWithSystem.AutoSize = true;
-            this.startWithSystem.Location = new System.Drawing.Point(12, 91);
+            this.startWithSystem.Location = new System.Drawing.Point(12, 88);
             this.startWithSystem.Name = "startWithSystem";
             this.startWithSystem.Size = new System.Drawing.Size(75, 21);
             this.startWithSystem.TabIndex = 6;
@@ -123,16 +123,16 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(195, 107);
+            this.label3.Location = new System.Drawing.Point(196, 116);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(124, 68);
             this.label3.TabIndex = 7;
-            this.label3.Text = "bing壁纸更换V0.2\r\nby RF103T\r\n随机壁纸接口：\r\nhttps://bing.ioliu.cn/";
+            this.label3.Text = "bing壁纸更换V0.3\r\nby RF103T\r\n随机壁纸接口：\r\nhttps://bing.ioliu.cn/";
             // 
             // state
             // 
             this.state.AutoSize = true;
-            this.state.Location = new System.Drawing.Point(96, 92);
+            this.state.Location = new System.Drawing.Point(106, 90);
             this.state.Name = "state";
             this.state.Size = new System.Drawing.Size(0, 17);
             this.state.TabIndex = 8;
@@ -192,9 +192,9 @@
             // 
             // savePicButton
             // 
-            this.savePicButton.Location = new System.Drawing.Point(12, 120);
+            this.savePicButton.Location = new System.Drawing.Point(12, 116);
             this.savePicButton.Name = "savePicButton";
-            this.savePicButton.Size = new System.Drawing.Size(156, 23);
+            this.savePicButton.Size = new System.Drawing.Size(156, 31);
             this.savePicButton.TabIndex = 9;
             this.savePicButton.Text = "保存这张壁纸";
             this.savePicButton.UseVisualStyleBackColor = true;
@@ -204,7 +204,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(331, 184);
+            this.ClientSize = new System.Drawing.Size(332, 193);
             this.Controls.Add(this.savePicButton);
             this.Controls.Add(this.state);
             this.Controls.Add(this.label3);
