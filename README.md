@@ -1,10 +1,10 @@
-# Bing壁纸更换器V0.2
+# Bing壁纸更换器V0.3
 
 前几天想找个软件给电脑弄个随机壁纸，偶然看到了个收费的软件，就想着既然有要花钱的还不如自己写一个练练，所以就写了这么个小玩意，我会一直保持软件的轻量化。
 
-现在版本号是 `V0.2` ，以后会根据需要添加更多的功能。
+现在版本号是 `V0.3` ，以后会根据需要添加更多的功能。
 
-下载地址：https://github.com/RF103T/BingWallpaperChanger/raw/master/bing%E5%A3%81%E7%BA%B8%E6%9B%B4%E6%8D%A2V0.2.exe
+下载地址：https://github.com/RF103T/BingWallpaperChanger/raw/master/bing%E5%A3%81%E7%BA%B8%E6%9B%B4%E6%8D%A2.exe
 
 ### 更新日志
 
