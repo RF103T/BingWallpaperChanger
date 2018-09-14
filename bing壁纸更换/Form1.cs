@@ -21,10 +21,12 @@ namespace bing壁纸更换
         bool startFlag = true;
         int time = 0;//设定的延迟时间
         int screenHeight, screenWidth, screenNum;//屏幕的参数
+        bool debug = false;//调试模式
 
         //全局计时器
         System.Timers.Timer dailyTimer = new System.Timers.Timer(3600000);
         System.Timers.Timer randTimer = new System.Timers.Timer();
+        System.Timers.Timer fullScreenCheck = new System.Timers.Timer(60000);
 
         //跨线程委托
         delegate void setText();
@@ -47,9 +49,9 @@ namespace bing壁纸更换
                 MessageBox.Show("此软件暂不支持多屏幕配置，而且不支持1080p以上分辨率的屏幕");
                 Environment.Exit(0);
             }
+            XmlDocument settings = new XmlDocument();
             if (!System.IO.File.Exists("Settings.set"))
             {
-                XmlDocument settings = new XmlDocument();
                 XmlDeclaration declaration = settings.CreateXmlDeclaration("1.0", "UTF-8", null);
                 settings.AppendChild(declaration);
                 XmlElement node = settings.CreateElement("设置");
@@ -65,6 +67,19 @@ namespace bing壁纸更换
                 node.AppendChild(s2);
                 node.AppendChild(s3);
                 settings.Save("Settings.set");
+            }
+            else
+            {
+                settings.Load("Settings.set");
+                XmlElement nodes = settings.DocumentElement;
+                XmlNodeList node = nodes.GetElementsByTagName("每日壁纸日期");
+                if (node.Count <= 0)
+                {
+                    XmlElement s = settings.CreateElement("每日壁纸日期");
+                    s.SetAttribute("id", "2");
+                    nodes.AppendChild(s);
+                    settings.Save("Settings.set");
+                }
             }
             //获取主线程ID
             mainThreadID = Thread.CurrentThread.ManagedThreadId;
@@ -114,7 +129,7 @@ namespace bing壁纸更换
             }
             if (!startFlag)
             {
-                updateSetting("0", backgroundOriginChoose.SelectedIndex.ToString());
+                updateSetting("壁纸源", backgroundOriginChoose.SelectedIndex.ToString());
                 timers();
             }
         }
@@ -163,7 +178,7 @@ namespace bing壁纸更换
             }
             if (!startFlag)
             {
-                updateSetting("1", changeTimeChoose.SelectedIndex.ToString());
+                updateSetting("更换频率", changeTimeChoose.SelectedIndex.ToString());
                 timers();
             }
         }
@@ -194,6 +209,20 @@ namespace bing壁纸更换
                     if (System.IO.File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + "\\BingWallpaperChanger.lnk"))
                         System.IO.File.Delete(Environment.GetFolderPath(Environment.SpecialFolder.Startup) + "\\BingWallpaperChanger.lnk");
                 }
+            }
+        }
+
+        //调试模式复选框
+        private void debugMode_CheckedChanged(object sender, EventArgs e)
+        {
+            if(debugMode.Checked)
+            {
+                MessageBox.Show("将打开调试模式，打开时程序遇到错误就会弹出错误窗口，请将相关信息报告给开发者，谢谢！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                debug = true;
+            }
+            else
+            {
+                debug = false;
             }
         }
 
@@ -233,6 +262,11 @@ namespace bing壁纸更换
                 Hide();
                 Visible = false;
                 notifyIcon.Visible = true;
+                ShowInTaskbar = false;
+            }
+            else if(WindowState == FormWindowState.Normal)
+            {
+                ShowInTaskbar = true;
             }
         }
 
@@ -240,9 +274,7 @@ namespace bing壁纸更换
         private void Form1_Activated(object sender, EventArgs e)
         {
             if (WindowState == FormWindowState.Minimized)
-            {
                 Hide();
-            }
         }
 
         //鼠标双击通知栏图标事件
@@ -260,16 +292,41 @@ namespace bing壁纸更换
             }
         }
 
-        //日图检测计时器
+        //随机图片更换计时器
         private void randTimerEvent(object sender, System.Timers.ElapsedEventArgs e)
         {
-            downloadBingRand("temp\\randPic.bmp");
+            if (!APIWrapper.isFullScreen())
+                downloadBingRand("temp\\randPic.bmp");
+            else
+            {
+                randTimer.Stop();
+                fullScreenCheck.Start();
+            }
         }
 
-        //随机图片更换计时器
+        //日图检测计时器
         private void dailyTimerEvent(object sender, System.Timers.ElapsedEventArgs e)
         {
-            downloadBingDaily("temp\\Pic.bmp");
+            if (!APIWrapper.isFullScreen())
+                downloadBingDaily("temp\\Pic.bmp");
+            else
+            {
+                dailyTimer.Stop();
+                fullScreenCheck.Start();
+            }
+        }
+
+        //全屏检测计时器
+        private void fullScreenCheckEvent(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if(APIWrapper.isFullScreen())
+            {
+                if (backgroundOriginChoose.SelectedIndex == 0)
+                    dailyTimer.Start();
+                else if (backgroundOriginChoose.SelectedIndex == 1)
+                    randTimer.Start();
+                fullScreenCheck.Stop();
+            }
         }
 
         //全局计时器（包括随机壁纸计时和日图检测计时）
@@ -280,6 +337,8 @@ namespace bing壁纸更换
             dailyTimer.Elapsed += new System.Timers.ElapsedEventHandler(dailyTimerEvent);
             randTimer.AutoReset = true;
             randTimer.Elapsed += new System.Timers.ElapsedEventHandler(randTimerEvent);
+            fullScreenCheck.AutoReset = true;
+            fullScreenCheck.Elapsed += new System.Timers.ElapsedEventHandler(fullScreenCheckEvent);
             if (backgroundOriginChoose.SelectedIndex == 0)
             {
                 if (randTimer.Enabled == true)
@@ -330,17 +389,12 @@ namespace bing壁纸更换
         }
 
         //更新设置Xml
-        private void updateSetting(string id, string value)
+        private void updateSetting(string nodeName, string value)
         {
             XmlDocument settings = new XmlDocument();
             settings.Load("Settings.set");
-            XmlElement node = settings.DocumentElement;
-            XmlNodeList settingsList = node.ChildNodes;
-            foreach (XmlNode s in settingsList)
-            {
-                if (s.Attributes["id"].InnerText == id)
-                    s.InnerText = value;
-            }
+            XmlNode nodes = settings.SelectSingleNode("//设置");
+            (nodes.SelectSingleNode(nodeName)).InnerText = value;
             settings.Save("Settings.set");
         }
 
@@ -397,7 +451,8 @@ namespace bing壁纸更换
             }
             catch (Exception ex)
             {
-                MessageBox.Show("检查壁纸更新时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (debug)
+                    MessageBox.Show("检查壁纸更新时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 errorTimer();
             }
             //判断是不是最新的每日壁纸
@@ -475,7 +530,8 @@ namespace bing壁纸更换
             }
             catch (Exception ex)
             {
-                MessageBox.Show("下载壁纸时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (debug)
+                    MessageBox.Show("下载壁纸时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 errorTimer();
             }
         }
@@ -551,7 +607,8 @@ namespace bing壁纸更换
             }
             catch (Exception ex)
             {
-                MessageBox.Show("转换壁纸时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (debug)
+                    MessageBox.Show("转换壁纸时出错：" + ex.Message + "\n详细信息：" + ex.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
