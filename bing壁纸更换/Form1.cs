@@ -26,11 +26,12 @@ namespace bing壁纸更换
         //全局计时器
         System.Timers.Timer dailyTimer = new System.Timers.Timer(3600000);
         System.Timers.Timer randTimer = new System.Timers.Timer();
-        System.Timers.Timer fullScreenCheck = new System.Timers.Timer(60000);
+        System.Timers.Timer systemStateCheck = new System.Timers.Timer(120000);
 
         //跨线程委托
-        delegate void setText();
-        delegate void setEnabled();
+        delegate void SetText();
+        delegate void SetEnabled();
+        delegate void ChangeTimer();
 
         //主线程ID
         static int mainThreadID;
@@ -114,6 +115,8 @@ namespace bing壁纸更换
         //更改壁纸源的事件
         private void backgroundOriginChoose_SelectedIndexChanged(object sender, EventArgs e)
         {
+            randTimer.Enabled = false;
+            dailyTimer.Enabled = false;
             if (backgroundOriginChoose.SelectedIndex == 0)
             {
                 changeTimeChoose.Enabled = false;
@@ -186,8 +189,8 @@ namespace bing壁纸更换
         //“立刻更换”按钮点击事件
         private void changeNow_Click(object sender, EventArgs e)
         {
-            downloadBingRand("temp\\randPic.bmp");
             randTimer.Stop();
+            downloadBingRand("temp\\randPic.bmp");
             randTimer.Start();
         }
 
@@ -295,38 +298,50 @@ namespace bing壁纸更换
         //随机图片更换计时器
         private void randTimerEvent(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!APIWrapper.isFullScreen())
+            if (SystemState.isACLine() && !SystemState.isFullScreen())
+            {
+                randTimer.Stop();
                 downloadBingRand("temp\\randPic.bmp");
+            }
             else
             {
                 randTimer.Stop();
-                fullScreenCheck.Start();
+                systemStateCheck.Start();
             }
         }
 
         //日图检测计时器
         private void dailyTimerEvent(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!APIWrapper.isFullScreen())
+            if (SystemState.isACLine() && !SystemState.isFullScreen())
+            {
+                dailyTimer.Stop();
                 downloadBingDaily("temp\\Pic.bmp");
+            }
             else
             {
                 dailyTimer.Stop();
-                fullScreenCheck.Start();
+                systemStateCheck.Start();
             }
         }
 
         //全屏检测计时器
-        private void fullScreenCheckEvent(object sender, System.Timers.ElapsedEventArgs e)
+        private void systemStateCheckEvent(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if(APIWrapper.isFullScreen())
+            systemStateCheck.Stop();
+            if (SystemState.isACLine() && !SystemState.isFullScreen())
             {
-                if (backgroundOriginChoose.SelectedIndex == 0)
-                    dailyTimer.Start();
-                else if (backgroundOriginChoose.SelectedIndex == 1)
-                    randTimer.Start();
-                fullScreenCheck.Stop();
+                SetEnabled setEnabled = () =>
+                {
+                    if (backgroundOriginChoose.SelectedIndex == 0)
+                        dailyTimer.Start();
+                    else if (backgroundOriginChoose.SelectedIndex == 1)
+                        randTimer.Start();
+                };
+                state.Invoke(setEnabled);
+                return;
             }
+            systemStateCheck.Start();
         }
 
         //全局计时器（包括随机壁纸计时和日图检测计时）
@@ -337,24 +352,14 @@ namespace bing壁纸更换
             dailyTimer.Elapsed += new System.Timers.ElapsedEventHandler(dailyTimerEvent);
             randTimer.AutoReset = true;
             randTimer.Elapsed += new System.Timers.ElapsedEventHandler(randTimerEvent);
-            fullScreenCheck.AutoReset = true;
-            fullScreenCheck.Elapsed += new System.Timers.ElapsedEventHandler(fullScreenCheckEvent);
+            systemStateCheck.AutoReset = true;
+            systemStateCheck.Elapsed += new System.Timers.ElapsedEventHandler(systemStateCheckEvent);
+            randTimer.Enabled = false;
+            dailyTimer.Enabled = false;
             if (backgroundOriginChoose.SelectedIndex == 0)
-            {
-                if (randTimer.Enabled == true)
-                    randTimer.Stop();
-                if (dailyTimer.Enabled == true)
-                    dailyTimer.Stop();
                 dailyTimer.Start();
-            }
             else if (backgroundOriginChoose.SelectedIndex == 1)
-            {
-                if (dailyTimer.Enabled == true)
-                    dailyTimer.Stop();
-                if (randTimer.Enabled == true)
-                    randTimer.Stop();
                 randTimer.Start();
-            }
         }
 
         //保存图片
@@ -420,7 +425,7 @@ namespace bing壁纸更换
         private void _downloadBingDaily(string path)
         {
             string imageUrl = "";
-            setText setText = () => { state.Text = "正在查询更新..."; };
+            SetText setText = () => { state.Text = "正在查询更新..."; };
             state.Invoke(setText);
             try
             {
@@ -481,6 +486,7 @@ namespace bing壁纸更换
             settings.Save("Settings.set");
             changeBackground(Directory.GetCurrentDirectory() + "\\" + path);
             System.IO.File.Delete(@"temp/temp.xml");
+            dailyTimer.Start();
         }
 
         //调用随机bing壁纸下载
@@ -488,12 +494,13 @@ namespace bing壁纸更换
         {
             downloadPic(bingRandPicApi, path);
             changeBackground(Directory.GetCurrentDirectory() + "\\" + path);
+            randTimer.Start();
         }
 
         //下载和保存壁纸
         private void downloadPic(string url, string path)
         {
-            setText setText = () => { state.Text = "正在下载壁纸..."; };
+            SetText setText = () => { state.Text = "正在下载壁纸..."; };
             state.Invoke(setText);
             try
             {
@@ -543,7 +550,7 @@ namespace bing壁纸更换
             {
                 for(int i = 3;i > 0;i--)
                 {
-                    setText setText = () =>
+                    SetText setText = () =>
                     {
                         state.Text = "遇到错误，将在" + i.ToString() + "秒后重试...";
                     };
@@ -562,7 +569,7 @@ namespace bing壁纸更换
         {
             if (mainThreadID != Thread.CurrentThread.ManagedThreadId)
             {
-                setEnabled setEnabled = () =>
+                SetEnabled setEnabled = () =>
                 {
                     if(backgroundOriginChoose.SelectedIndex != 0)
                     {

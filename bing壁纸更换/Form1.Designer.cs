@@ -128,7 +128,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(124, 68);
             this.label3.TabIndex = 7;
-            this.label3.Text = "bing壁纸更换V0.4\r\nby RF103T\r\n随机壁纸接口：\r\nhttps://bing.ioliu.cn/";
+            this.label3.Text = "bing壁纸更换 V0.5\r\nby RF103T\r\n随机壁纸接口：\r\nhttps://bing.ioliu.cn/";
             // 
             // state
             // 
